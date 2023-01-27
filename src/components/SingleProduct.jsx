@@ -75,9 +75,6 @@ const SingleProduct = ({ _id, img }) => {
             <Image src={img} />
             <Info>
                 <Icon>
-                    <BiCart />
-                </Icon>
-                <Icon>
                     <Link to={`/product/${_id}`} >
                         <BiSearchAlt2 />
                     </Link>

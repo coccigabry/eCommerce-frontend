@@ -97,6 +97,7 @@ const FilterColor = styled.div`
         border: 3px solid teal;
     `} */
     border-radius: 50%;
+    border: 1px solid black;
     background-color: ${props => props.color};
     margin: 0 2px;
     cursor: pointer;
@@ -120,6 +121,17 @@ const AmountContainer = styled.div`
     display: flex;
     align-items: center;
     font-weight: 700;
+`
+const ToggleIcon = styled.button`
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &:disabled{
+        cursor: not-allowed;
+    }
 `
 const Amount = styled.span`
     width: 30px;
@@ -171,7 +183,7 @@ const Product = () => {
     }, [])
 
     const handleQuantity = (action) => {
-        action == 'dec' ? quantity > 1 && setQuantity(quantity - 1) : setQuantity(quantity + 1)
+        action == 'decrease' ? quantity > 1 && setQuantity(quantity - 1) : setQuantity(quantity + 1)
     }
 
 
@@ -222,9 +234,13 @@ const Product = () => {
                     </FilterContainer>
                     <AddContainer>
                         <AmountContainer>
-                            <FaMinus onClick={() => handleQuantity('dec')} />
+                            <ToggleIcon disabled={quantity <= 1}>
+                                <FaMinus onClick={() => handleQuantity('decrease')} />
+                            </ToggleIcon>
                             <Amount>{quantity}</Amount>
-                            <FaPlus onClick={() => handleQuantity('inc')} />
+                            <ToggleIcon>
+                                <FaPlus onClick={() => handleQuantity('increase')} />
+                            </ToggleIcon>
                         </AmountContainer>
                         <Button
                             disabled={!color || !size}

@@ -5,11 +5,11 @@ import { FaMinus, FaPlus } from 'react-icons/fa'
 import { mobile } from '../responsive/responsive'
 import StripeCheckout from 'react-stripe-checkout';
 import { userRequest } from '../requestMethods'
-import { useSelector } from 'react-redux'
-import axios from 'axios'
+import { useDispatch, useSelector } from 'react-redux'
+import { removeProduct, clearCart, toggleCartAmount, getCartTotal } from '../redux/features/cartSlice'
 
 
-const STRIPE_KEY = process.env.REACT_APP_STRIPE_KEY
+const STRIPE_KEY = import.meta.env.VITE_STRIPE_KEY
 
 
 const Container = styled.div``
@@ -85,12 +85,15 @@ const ProductName = styled.span`
 const ProductID = styled.span`
 `
 const ProductColor = styled.div`
+margin-left: 15px;
     width: 20px;
     height: 20px;
     border-radius: 50%;
+    border: 1px solid black;
     background-color: ${props => props.color};
 `
 const ProductSize = styled.span`
+    display: flex;
 `
 const PriceDetail = styled.div`
     flex: 1;
@@ -104,9 +107,26 @@ const ProductAMountContainer = styled.div`
     align-items: center;
     margin-bottom: 20px;
 `
+const ToggleIcon = styled.button`
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &:disabled{
+        cursor: not-allowed;
+    }
+`
 const ProductAmount = styled.div`
-    font-size: 24px;
-    margin: 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    border: 1px solid teal;
+    display: flex;  
+    align-items: center;
+    justify-content: center;
+    margin: 0 5px;
 
     ${mobile({
     margin: '5px 15px',
@@ -120,10 +140,12 @@ const ProductPrice = styled.div`
     marginBottom: '20px',
 })}
 `
-const Hr = styled.hr`
-    background-color: #aaa;
-    border: none;
-    height: 1px;
+const RemoveProduct = styled.p`
+    margin-top: 20px;
+    font-size: 16px;
+    text-decoration: underline;
+    font-weight: 400;
+    cursor: pointer;
 `
 const Summary = styled.div`
     flex: 1;
@@ -153,17 +175,32 @@ const Button = styled.button`
     color: white;
     font-weight: 600;
 `
+const ClearCart = styled.p`
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    font-size: 16px;
+    text-decoration: underline;
+    font-weight: 400;
+    cursor: pointer;
+`
+
 
 const Cart = () => {
     const cart = useSelector(store => store.cart)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
     const [stripeToken, setStripeToken] = useState(null)
-    const navigate = useNavigate()
 
     const onToken = (token) => {
         setStripeToken(token)
     }
-    
+
+    useEffect(() => {
+        dispatch(getCartTotal())
+    }, [cart.products])
+
     useEffect(() => {
         const makeRequest = async () => {
             try {
@@ -175,14 +212,36 @@ const Cart = () => {
                     }
                 )
                 console.log(res.data)
-                navigate('/payment/success', {state: res.data})
+                navigate('/payment/success', { state: res.data })
             } catch (err) {
                 console.log(err)
-                navigate('/payment/failed', {state: res.data})
+                navigate('/payment/failed', { state: res.data })
             }
         }
         stripeToken && makeRequest()
     }, [stripeToken, cart.total])
+
+
+    if (cart.products.length === 0) {
+        return (
+            <Container>
+                <Wrapper>
+                    <Top>
+                        <Link to='/products'>
+                            <TopButton>CONTINUE SHOPPING</TopButton>
+                        </Link>
+                        <TopTexts>
+                            <TopText>Wishlist</TopText>
+                        </TopTexts>
+                    </Top>
+                    <h2 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '70px 0' }}>
+                        Your cart is empty
+                    </h2>
+                </Wrapper>
+            </Container>
+
+        )
+    }
 
     return (
         <Container>
@@ -199,29 +258,32 @@ const Cart = () => {
                 <Bottom>
                     <Info>
                         {
-                            cart.products.length === 0 && <h2 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '70px 0' }}>Your cart is empty</h2>
-                        }
-                        {
                             cart.products.map(product => {
                                 const { img, title, _id, color, size, quantity, price } = product
                                 return (
-                                    <Product key={_id}>
+                                    <Product key={`${_id}&${color}&${size}`}>
                                         <ProductDetail>
                                             <Image src={img} />
                                             <Details>
-                                                <ProductName><b>Product:</b>{title}</ProductName>
-                                                <ProductID><b>ID:</b>{_id}</ProductID>
-                                                <ProductColor color={color} />
-                                                <ProductSize><b>Size:</b>{size}</ProductSize>
+                                                <ProductName><b>Product:&nbsp;</b>{title}</ProductName>
+                                                <Link to={`/product/${_id}`} >
+                                                    <ProductID><b>ID:&nbsp;</b>{_id}</ProductID>
+                                                </Link>
+                                                <ProductSize><b>Size:&nbsp;</b>{size}<ProductColor color={color} /></ProductSize>
                                             </Details>
                                         </ProductDetail>
                                         <PriceDetail>
                                             <ProductAMountContainer>
-                                                <FaMinus />
+                                                <ToggleIcon disabled={quantity <= 1} >
+                                                    <FaMinus onClick={() => dispatch(toggleCartAmount({ product, type: 'decrease' }))} />
+                                                </ToggleIcon>
                                                 <ProductAmount>{quantity}</ProductAmount>
-                                                <FaPlus />
+                                                <ToggleIcon>
+                                                    <FaPlus onClick={() => dispatch(toggleCartAmount({ product, type: 'increase' }))} />
+                                                </ToggleIcon>
                                             </ProductAMountContainer>
                                             <ProductPrice>$ {price * quantity}</ProductPrice>
+                                            <RemoveProduct onClick={() => dispatch(removeProduct({ product }))}>Remove Item</RemoveProduct>
                                         </PriceDetail>
                                     </Product>
                                 )
@@ -264,6 +326,7 @@ const Cart = () => {
                                     </StripeCheckout>
                                 )
                             }
+                            <ClearCart onClick={() => dispatch(clearCart())}>Clear cart</ClearCart>
                         </Summary>
                     }
                 </Bottom>
