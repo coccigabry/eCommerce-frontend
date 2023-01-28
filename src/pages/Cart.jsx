@@ -174,6 +174,11 @@ const Button = styled.button`
     background-color: black;
     color: white;
     font-weight: 600;
+
+    &:disabled {
+        background-color: lightgrey;
+        color: red;
+    }
 `
 const ClearCart = styled.p`
     display: flex;
@@ -188,6 +193,8 @@ const ClearCart = styled.p`
 
 const Cart = () => {
     const cart = useSelector(store => store.cart)
+    const user = useSelector((store) => store.user.currentUser);
+
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -211,11 +218,14 @@ const Cart = () => {
                         amount: cart.total * 100
                     }
                 )
-                console.log(res.data)
-                navigate('/payment/success', { state: res.data })
+                const navigateState = {
+                    stripeData: res.data,
+                    orderData: cart
+                }
+                navigate('/payment/checkout', { state: navigateState } )
             } catch (err) {
-                console.log(err)
-                navigate('/payment/failed', { state: res.data })
+                console.error(err)
+                navigate('/payment/checkout', { state: err } )
             }
         }
         stripeToken && makeRequest()
@@ -320,9 +330,17 @@ const Cart = () => {
                                         token={onToken}
                                         stripeKey={STRIPE_KEY}
                                     >
-                                        <Button>
-                                            GO TO PAYMENT
-                                        </Button>
+                                        {
+                                            user ? (
+                                                <Button>
+                                                    GO TO PAYMENT
+                                                </Button>
+                                            ) : (
+                                                <Button disabled={true}>
+                                                    PLEASE LOGIN TO PROCEED
+                                                </Button>
+                                            )
+                                        }
                                     </StripeCheckout>
                                 )
                             }

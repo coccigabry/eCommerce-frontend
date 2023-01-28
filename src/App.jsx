@@ -8,9 +8,7 @@ import ProductList from "./pages/ProductList"
 import Register from "./pages/Register"
 import Login from "./pages/Login"
 import Cart from "./pages/Cart"
-import Success from "./pages/Success"
-import Failed from "./pages/Failed"
-
+import Checkout from "./pages/Checkout"
 
 
 const App = () => {
@@ -19,6 +17,7 @@ const App = () => {
   return (
     <BrowserRouter>
       <Navbar />
+
       <Routes>
         <Route exact path='/' element={<Home />} />
 
@@ -34,9 +33,9 @@ const App = () => {
         <Route path='/login' element={user ? <Navigate to='/' /> : <Login />} />
         <Route path='/register' element={user ? <Navigate to='/' /> : <Register />} />
 
-        <Route path='/payment/failed' element={<Failed />} />
-        <Route path='/payment/success' element={<Success />} />
+        <Route path='/payment/checkout' element={<Checkout />} />
       </Routes>
+
       <Footer />
     </BrowserRouter>
   )

@@ -18,8 +18,6 @@ const Products = ({ category, filters, sort, pop }) => {
 
     const location = useLocation()
 
-    console.log(location)
-
     useEffect(() => {
         const fetchData = async () => {
             try {
