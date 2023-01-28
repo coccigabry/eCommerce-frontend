@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import axios from "axios"
 import SingleProduct from "./SingleProduct"
 import styled from 'styled-components'
+import { useLocation } from "react-router-dom"
 
 
 const Container = styled.div`
@@ -14,6 +15,10 @@ const Container = styled.div`
 const Products = ({ category, filters, sort, pop }) => {
     const [products, setProducts] = useState([])
     const [filteredProducts, setFilteredProducts] = useState([])
+
+    const location = useLocation()
+
+    console.log(location)
 
     useEffect(() => {
         const fetchData = async () => {
@@ -64,7 +69,14 @@ const Products = ({ category, filters, sort, pop }) => {
         )
     })
 
-    if (products.length == 0) {
+    const renderAllProducts = products.map(item => {
+        const id = item._id
+        return (
+            <SingleProduct key={id} {...item} />
+        )
+    })
+
+    if (products.length === 0) {
         return (
             <Container>
                 <h3 style={{ margin: '70px auto' }}>No items found</h3>
@@ -72,10 +84,18 @@ const Products = ({ category, filters, sort, pop }) => {
         )
     }
 
+    if (location.pathname === '/') {
+        return (
+            <Container>
+                {renderPopProducts}
+            </Container>
+        )
+    }
+
     return (
         <Container>
             {
-                category ? renderFilteredProducts : renderPopProducts
+                category ? renderFilteredProducts : renderAllProducts
             }
         </Container>
     )

@@ -217,6 +217,7 @@ const Product = () => {
                                     />
                                 ))
                             }
+                            <p>{color}</p>
                         </Filter>
                         <Filter>
                             <FilterTitle>Size:</FilterTitle>

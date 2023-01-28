@@ -34,7 +34,7 @@ const cartSlice = createSlice({
                         return { ...item, quantity: item.quantity + 1 }
                     }
                     if (action.payload.type === 'decrease') {
-                        return { ...item, quantity: item.quantity -1 }
+                        return { ...item, quantity: item.quantity - 1 }
                     }
                 }
                 return item
@@ -50,10 +50,17 @@ const cartSlice = createSlice({
             }, { total: 0, amount: 0 })
             state.total = parseFloat(total.toFixed(2))
             state.amount = amount
-        }
+        },
     }
 })
 
 
-export const { addProduct, removeProduct, clearCart, toggleCartAmount, getCartTotal } = cartSlice.actions
+export const {
+    addProduct,
+    removeProduct,
+    clearCart,
+    toggleCartAmount,
+    getCartTotal,
+} = cartSlice.actions
+
 export default cartSlice.reducer

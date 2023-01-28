@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { BiSearchAlt2, BiCart, BiHeart } from 'react-icons/bi'
+import { BiSearchAlt2, BiHeart } from 'react-icons/bi'
 import { mobile } from '../responsive/responsive'
 import { Link } from 'react-router-dom'
 
@@ -66,22 +66,41 @@ const Icon = styled.div`
         transform: scale(1.1);
     }
 `
+const IconWish = styled.div`
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px;
+    transition: all 1s ease;
+    cursor: pointer;
+
+    &:hover{
+        background-color: #e9f5f5;
+        transform: scale(1.1);
+    }
+`
+
+const SingleProduct = ({ ...item }) => {
 
 
-const SingleProduct = ({ _id, img }) => {
     return (
         <Container>
             <Circle />
-            <Image src={img} />
+            <Image src={item.img} />
             <Info>
                 <Icon>
-                    <Link to={`/product/${_id}`} >
+                    <Link to={`/product/${item._id}`} >
                         <BiSearchAlt2 />
                     </Link>
                 </Icon>
-                <Icon>
+                <IconWish>
                     <BiHeart />
-                </Icon>
+                </IconWish>
             </Info>
         </Container>
     )
